@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/static/styles/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=Open+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    {% block title_block %}
+    {% endblock %}
+</head>
+<body>
+    <nav class="sidebar">
+        <div>
+            <div class="logo-div">
+                <img alt="logo" class="big-logo" src="{% static 'images/Logo1.0.svg' %}"/>
+            </div>
+            <button id="dashboard">
+                <img alt="home" class="nav-logo" src="{% static 'images/home.svg' %}"/>
+                Dashboard
+            </button>
+            <button id="product">
+                <img alt="home" class="nav-logo" src="{% static 'images/box.svg' %}"/>
+                Product
+            </button>
+            <button id="pos">
+                <img alt="home" class="nav-logo" src="{% static 'images/pos.svg' %}"/>
+                POS
+            </button>
+            <button id="stock">
+                <img alt="home" class="nav-logo" src="{% static 'images/stock.svg' %}"/>
+                Stock
+            </button>
+            <button id="sales">
+                <img alt="home" class="nav-logo" src="{% static 'images/sales.svg' %}"/>
+                Sales
+            </button>
+            <button id="reports">
+                <img alt="home" class="nav-logo" src="{% static 'images/report.svg' %}"/>
+                Reports
+            </button>
+        </div>
+        <div>
+            <button id="settings">
+                <img alt="home" class="nav-logo" src="{% static 'images/settings.svg' %}"/>
+                Account
+            </button>
+            <button id="logout">
+                <img alt="home" class="nav-logo" src="{% static 'images/logout.svg' %}"/>
+                Logout
+            </button>
+        </div>
+    </nav>
+
+    <div class="parent">
+        <div id="reports-modal" class="modal">
+            <div class="modal-content">
+                <p>REPORTS</p>
+                <form action="{% url 'pos:reports' %}" method="POST" id="dateRangeForm">
+                    {% csrf_token %}
+                    <div class="fieldWrapper">
+                        <label for="start_date_time">Start Date:</label>
+                        <input type="datetime-local" class="input" type="date" id="start_date_time" name="start_date_time" required>
+                    </div>
+            
+                    <div class="fieldWrapper">
+                        <label for="end_date_time">End Date:</label>
+                        <input type="datetime-local" class="input" type="date" id="end_date_time" name="end_date_time" required>
+                    </div>
+                    
+                    <div class="fieldWrapper">
+                        <div id="error-message" class="error"></div>
+                    </div>
+                    
+                    <div class="button-group">                        
+                        <input class="btn-primary" type="submit" value="SUBMIT"/>
+                        <button type="button" id="close-modal" class="btn-secondary"> CANCEL </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    {% block body_block %}
+
+    {% endblock %}
+    </div>
+    {% block footer_block %}
+    {% endblock %}
+</body>
+
+<script type="text/javascript">
+    let reports_modal = document.getElementById("reports-modal");
+    let close_modal = document.getElementById("close-modal");
+    let dashboard = document.getElementById("dashboard");
+    let products = document.getElementById("product");
+    let reports = document.getElementById("reports");
+    let sales = document.getElementById("sales");
+    let stock = document.getElementById("stock");
+    let settings = document.getElementById("settings")
+    let pos = document.getElementById("pos");
+
+    document.getElementById('dateRangeForm').addEventListener('submit', function(event) {
+        const startDateTime = new Date(document.getElementById('start_date_time').value);
+        const endDateTime = new Date(document.getElementById('end_date_time').value);
+        const errorMessage = document.getElementById('error-message');
+
+        // Clear previous error message
+        errorMessage.textContent = '';
+
+        // Check if start date is greater than end date
+        if (startDateTime > endDateTime) {
+            event.preventDefault(); // Prevent form submission
+            errorMessage.textContent = 'Start date and time cannot be later than the end date and time.';
+        }
+    });
+
+    dashboard.onclick = function () {
+        location.href = "/pos/products/1";
+    };
+
+    products.onclick = function () {
+        location.href = "/pos/products/1";
+    };
+
+    stock.onclick = function () {
+        location.href = "/pos/stock/1";
+    };
+
+    pos.onclick = function () {
+        location.href = "/pos/pos";
+    };
+
+    sales.onclick = function () {
+        location.href = "/pos/sales/1";
+    };
+
+    reports.addEventListener('click', function() {
+        reports_modal.style.display = "block";
+    });
+
+    close_modal.addEventListener('click', function() {
+        reports_modal.style.display = "none";
+    });
+    
+    settings.onclick = function () {
+        location.href = "/pos/account";
+    };
+
+    logout.onclick = function () {
+        location.href = "/pos/logout";
+    };
+
+</script>
+
+</html>
