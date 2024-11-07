@@ -5,6 +5,7 @@ pipeline {
         // Set up environment variables for your image repository and tag
         DOCKER_IMAGE = 'gregatemi/jaythree'  // Replace with your Docker Hub repo
         IMAGE_TAG = "jenkins" // Could also use git commit hash for versioning, e.g., "${GIT_COMMIT}"
+        DOCKER_CREDENTIALS_ID = 'DOCKER_CREDENTIALS_ID'
     }
 
     stages {
