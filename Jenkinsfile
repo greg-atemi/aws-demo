@@ -26,13 +26,12 @@ pipeline {
 
         stage('Push Docker Image') {
             when {
-                // Only push if credentials are set (optional)
                 expression { return env.DOCKER_CREDENTIALS_ID }
             }
             steps {
                 script {
-                    // Log in to the Docker registry
-                    docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
+                    // Log in to the Docker registry using the credentials ID
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
                         // Push the Docker image
                         docker.image("${DOCKER_IMAGE}:${IMAGE_TAG}").push()
                     }
