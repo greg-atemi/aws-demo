@@ -32,7 +32,7 @@ pipeline {
             steps {
                 script {
                     // Log in to the Docker registry using the credentials ID
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
+                    docker.withRegistry('https://index.docker.io/v1/', 'DOCKER_CREDENTIALS_ID') {
                         // Push the Docker image
                         docker.image("${DOCKER_IMAGE}:${IMAGE_TAG}").push()
                     }
