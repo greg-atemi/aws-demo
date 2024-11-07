@@ -11,7 +11,6 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 // Check out code from the GitHub repository
-                // Pipeline trigger
                 checkout scm
             }
         }
