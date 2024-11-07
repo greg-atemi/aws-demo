@@ -1,36 +1,57 @@
 pipeline {
-    agent any 
+    agent any
+
+    environment {
+        // Set up environment variables for your image repository and tag
+        DOCKER_IMAGE = 'gregatemi/jaythree'  // Replace with your Docker Hub repo
+        IMAGE_TAG = "jenkins" // Could also use git commit hash for versioning, e.g., "${GIT_COMMIT}"
+    }
 
     stages {
-        stage('Build') {
+        stage('Clone Repository') {
             steps {
-                echo 'We will build here...'
-                // Your build commands here
+                // Check out code from the GitHub repository
+                // Pipeline trigger
+                checkout scm
             }
         }
-        stage('Test') {
+
+        stage('Build Docker Image') {
             steps {
-                echo 'Testing...'
-                // Your test commands here
+                script {
+                    // Build the Docker image using the Dockerfile in the project root
+                    docker.build("${DOCKER_IMAGE}:${IMAGE_TAG}")
+                }
             }
         }
-        stage('Deploy') {
+
+        stage('Push Docker Image') {
+            when {
+                // Only push if credentials are set (optional)
+                expression { return env.DOCKER_CREDENTIALS_ID }
+            }
             steps {
-                echo 'Deploying...'
-                // Your deployment commands here
+                script {
+                    // Log in to the Docker registry
+                    docker.withRegistry('', env.DOCKER_CREDENTIALS_ID) {
+                        // Push the Docker image
+                        docker.image("${DOCKER_IMAGE}:${IMAGE_TAG}").push()
+                    }
+                }
             }
         }
     }
 
     post {
         always {
-            echo 'This will always run after the pipeline finishes.'
-        }
-        success {
-            echo 'This will run only if the pipeline is successful.'
-        }
-        failure {
-            echo 'This will run only if the pipeline fails.'
+            // Clean up any images or containers created by the build to save disk space
+            script {
+                try {
+                    docker.image("${DOCKER_IMAGE}:${IMAGE_TAG}").remove()
+                } catch (Exception e) {
+                    echo "Failed to remove Docker image: ${e.getMessage()}"
+                }
+            }
         }
     }
 }
