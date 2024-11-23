@@ -11,7 +11,7 @@ pipeline {
     environment {
         AWS_ACCOUNT_ID="682033467553"
         AWS_DEFAULT_REGION="eu-central-1" 
-        IMAGE_REPO_NAME="devops/masterclass"
+        IMAGE_REPO_NAME="jaythree"
         IMAGE_TAG="latest"
         REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
     }
@@ -24,15 +24,32 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Logging into AWS ECR') {
             steps {
                 script {
-                    // Build the Docker image using the Dockerfile in the project root
-                    // docker.build("${DOCKER_IMAGE}:${IMAGE_TAG}")
-                    docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}"
+                    sh """aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"""
+                }  
+            }
+        }
+
+        stage('Building image') {
+            steps {
+                script {
+                    sh """ docker build -t ${IMAGE_REPO_NAME}:${IMAGE_TAG} ."""
+                    sh """ docker build -t ${IMAGE_REPO_NAME}:${BUILD_ID} ."""
                 }
             }
         }
+
+        // stage('Build Docker Image') {
+        //     steps {
+        //         script {
+        //             // Build the Docker image using the Dockerfile in the project root
+        //             // docker.build("${DOCKER_IMAGE}:${IMAGE_TAG}")
+        //             docker.build "${IMAGE_REPO_NAME}:${IMAGE_TAG}"
+        //         }
+        //     }
+        // }
 
         // stage('Push Docker Image') {
         //     when {
@@ -54,22 +71,21 @@ pipeline {
             steps{ 
                 script {
                     sh "docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$IMAGE_TAG"
+                    sh "docker tag ${IMAGE_REPO_NAME}:${IMAGE_TAG} ${REPOSITORY_URI}:$BUILD_ID"
                     sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}"
-                }
-            }
-        }   
-    }
-
-    post {
-        always {
-            // Clean up any images or containers created by the build to save disk space
-            script {
-                try {
-                    docker.image("${DOCKER_IMAGE}:${IMAGE_TAG}").remove()
-                } catch (Exception e) {
-                    echo "Failed to remove Docker image: ${e.getMessage()}"
+                    sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${BUILD_ID}"
                 }
             }
         }
+
+        // Removing redundant containers
+        stage('Removing redundant containers') {
+            steps{ 
+                script {
+                    sh "docker rmi ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}"
+                    sh "docker rmi ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${BUILD_ID}"
+                }
+            }
+        }   
     }
 }
