@@ -1,6 +1,6 @@
 services:
   jaythree:
-    image: gregatemi/jaythree:jenkins
+    image: gregatemi/jaythree:postgres
     container_name: jaythree
     ports:
       - "8000:8000"
