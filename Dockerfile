@@ -5,11 +5,11 @@ FROM python:3.11-alpine
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install build dependencies
+# Install build dependencies for Postgres
 RUN apk add --no-cache \
     build-base \
-    mariadb-dev \
-    && pip install --no-cache-dir mysqlclient
+    postgresql-dev \
+    && pip install --no-cache-dir psycopg2-binary
 
 # Set the working directory
 WORKDIR /app
@@ -26,3 +26,4 @@ EXPOSE 8000
 
 # Start the Django development server
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
