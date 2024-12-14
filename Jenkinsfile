@@ -13,7 +13,7 @@ pipeline {
         AWS_DEFAULT_REGION="eu-central-1" 
         IMAGE_REPO_NAME="jaythree"
         IMAGE_TAG="latest"
-        CLUSTER_NAME="ultimate-cluster"
+        CLUSTER_NAME="ultimate_cluster"
         REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
 
     }
