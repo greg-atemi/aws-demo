@@ -13,7 +13,9 @@ pipeline {
         AWS_DEFAULT_REGION="eu-central-1" 
         IMAGE_REPO_NAME="jaythree"
         IMAGE_TAG="latest"
+        CLUSTER_NAME="ultimate-cluster"
         REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
+
     }
 
     stages {
@@ -92,10 +94,10 @@ pipeline {
             steps {
                 script {
                     // Configure kubectl to access your EKS cluster
-                    sh "aws eks --region ${AWS_REGION} update-kubeconfig --name ${CLUSTER_NAME}"
+                    sh "aws eks --region ${AWS_DEFAULT_REGION} update-kubeconfig --name ${CLUSTER_NAME}"
                     
                     // Update the Kubernetes deployment with the new image
-                    sh "kubectl set image deployment/jaythree -n jaythree jaythree=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPOSITORY_URI}:$IMAGE_TAG"
+                    sh "kubectl set image deployment/jaythree -n jaythree jaythree=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:$IMAGE_TAG"
                 }
             }
         }
