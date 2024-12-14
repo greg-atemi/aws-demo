@@ -86,6 +86,17 @@ pipeline {
                     sh "docker rmi ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${BUILD_ID}"
                 }
             }
-        }   
+        }
+
+        stage('Update EKS Deployment') {
+            steps {
+                script {
+                    // Configure kubectl to access your EKS cluster
+                    sh "aws eks --region ${AWS_REGION} update-kubeconfig --name ${CLUSTER_NAME}"
+                    
+                    // Update the Kubernetes deployment with the new image
+                    sh "kubectl set image deployment/jaythree -n jaythree jaythree=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPOSITORY_URI}:$IMAGE_TAG"
+                }
+            }
     }
 }
