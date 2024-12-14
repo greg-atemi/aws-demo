@@ -98,5 +98,6 @@ pipeline {
                     sh "kubectl set image deployment/jaythree -n jaythree jaythree=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${REPOSITORY_URI}:$IMAGE_TAG"
                 }
             }
+        }
     }
 }
